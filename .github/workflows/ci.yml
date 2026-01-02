@@ -1,26 +1,29 @@
-name: Java CI with Docker
+name: SentinelSync CI/CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-    - name: Build with Javac
-      run: javac src/*.java -d .
+      - name: Verify Compilation
+        run: javac src/*.java -d .
 
-    - name: Docker Build Test
-      run: docker build -t campus-mess:test .
+      - name: Set up Docker Buildx
+        uses: actions/setup-qemu-action@v3
+        
+      - name: Build Docker Image
+        run: |
+          docker build -t sentinelsync:${{ github.sha }} .
