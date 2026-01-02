@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  campus-mess-app:
+    build: .
+    container_name: campus_mess_container
+    ports:
+      - "8080:8080"
+    volumes:
+      # This maps the internal shared memory file to your local machine
+      - ./data:/app/data
+    restart: always

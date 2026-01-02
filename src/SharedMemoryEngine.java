@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class SharedMemoryEngine {
-    private static final String FILE_NAME = "campus_governance.bin";
+    private static final String FILE_NAME = "data/campus_governance.bin";
     private static final int DAY_BLOCK = 128; 
     private static final int LOG_BLOCK = 256; 
     private static final int MAX_LOGS = 1000;

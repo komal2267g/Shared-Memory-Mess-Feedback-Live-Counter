@@ -4,12 +4,33 @@ import com.sun.net.httpserver.*;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class WebServer {
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
+        // --- 1. Serving the UI (HTML) ---
+        server.createContext("/", e -> {
+            try {
+                // Docker ke andar path /app/web/index.html hota hai
+                File file = new File("web/index.html");
+                byte[] response = Files.readAllBytes(file.toPath());
+                e.getResponseHeaders().add("Content-Type", "text/html");
+                e.sendResponseHeaders(200, response.length);
+                e.getResponseBody().write(response);
+            } catch (IOException ex) {
+                String error = "404 File Not Found";
+                e.sendResponseHeaders(404, error.length());
+                e.getResponseBody().write(error.getBytes());
+            } finally {
+                e.getResponseBody().close();
+            }
+        });
+
+        // --- 2. API: Submit Feedback ---
         server.createContext("/api/submit", e -> {
             handleCors(e);
             if (e.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
@@ -17,27 +38,22 @@ public class WebServer {
                 return;
             }
             if (e.getRequestMethod().equalsIgnoreCase("POST")) {
-                try {
-                    String body = new String(e.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                    Map<String, String> p = parse(body);
-                    SharedMemoryEngine.saveEntry(p.get("u"), p.get("m"), p.get("r"), p.get("msg"));
-                    send(e, "SUCCESS", 200);
-                } catch (Exception ex) {
-                    send(e, "ERROR", 500);
-                }
+                String body = new String(e.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                Map<String, String> p = parse(body);
+                SharedMemoryEngine.saveEntry(p.get("u"), p.get("m"), p.get("r"), p.get("msg"));
+                send(e, "SUCCESS", 200);
             }
         });
 
+        // --- 3. API: Get Data ---
         server.createContext("/api/data", e -> {
             handleCors(e);
-            if (e.getRequestMethod().equalsIgnoreCase("GET")) {
-                e.getResponseHeaders().add("Content-Type", "application/json");
-                String json = "{\"logs\":" + SharedMemoryEngine.getLogsJSON() + ", \"stats\":" + SharedMemoryEngine.getYearlyStats() + "}";
-                send(e, json, 200);
-            }
+            e.getResponseHeaders().add("Content-Type", "application/json");
+            String json = "{\"logs\":" + SharedMemoryEngine.getLogsJSON() + ", \"stats\":" + SharedMemoryEngine.getYearlyStats() + "}";
+            send(e, json, 200);
         });
 
-        System.out.println("✅ Campus Portal Engine LIVE on Port 8080");
+        System.out.println("🚀 Campus Portal Engine LIVE on Port 8080");
         server.start();
     }
 
