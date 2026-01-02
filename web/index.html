@@ -177,7 +177,8 @@
     </main>
 
     <script>
-        let currentUser = "", currentRate = "Good", chart, API = "/api";
+        // Make sure all these variables are declared
+        let currentUser = "", currentRate = "Good", chart, API = "/api", allLogs = [];
 
         function doLogin() {
             currentUser = document.getElementById('userId').value.trim() || "GUEST";
