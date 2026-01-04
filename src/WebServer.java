@@ -13,7 +13,7 @@ public class WebServer {
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
-        // Serve HTML
+        // Serve index.html
         server.createContext("/", e -> {
             try {
                 Path path = Paths.get("web", "index.html");
@@ -21,7 +21,7 @@ public class WebServer {
                 e.getResponseHeaders().add("Content-Type", "text/html");
                 e.sendResponseHeaders(200, response.length);
                 e.getResponseBody().write(response);
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 String err = "404 Not Found";
                 e.sendResponseHeaders(404, err.length());
                 e.getResponseBody().write(err.getBytes());
@@ -40,7 +40,7 @@ public class WebServer {
             }
         });
 
-        // API: Get Data
+        // API: Data
         server.createContext("/api/data", e -> {
             handleCors(e);
             e.getResponseHeaders().add("Content-Type", "application/json");
@@ -48,7 +48,7 @@ public class WebServer {
             send(e, json, 200);
         });
 
-        System.out.println("🚀 Campus Portal Engine LIVE on Port 8080");
+        System.out.println("🚀 Portal Engine LIVE on Port 8080");
         server.start();
     }
 

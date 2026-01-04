@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hostel Management System | E-Governance</title>
+    <title>Hostel Management | HMS</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,137 +11,84 @@
     <style>
         :root { --amrita-red: #9b1c31; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        body.dark { background-color: #0f172a; color: white; }
-        body.dark .bg-white { background-color: #1e293b; color: white; border-color: #334155; }
         .sidebar-link:hover { background: rgba(255,255,255,0.1); border-left: 4px solid white; }
         .active-tab { background: rgba(255,255,255,0.2); border-left: 4px solid white; }
-        @media print {
-            aside, nav, header, .no-print, button, .filter-box { display: none !important; }
-            main { margin: 0 !important; padding: 0 !important; width: 100% !important; }
-            .print-only { display: block !important; }
-            body { background: white !important; color: black !important; }
-        }
+        @media print { aside, nav, header, .no-print, button, .filter-box { display: none !important; } main { width: 100% !important; margin:0; } .print-only { display: block !important; } }
         .print-only { display: none; }
     </style>
 </head>
 <body id="appBody" class="flex h-screen overflow-hidden transition-all">
 
-    <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="fixed inset-0 z-[100] bg-white flex items-center justify-center p-6">
         <div class="max-w-md w-full text-center">
             <div class="flex items-center justify-center gap-3 mb-4">
                 <div class="bg-[#9b1c31] p-2 rounded-lg shadow-lg"><i class="fas fa-university text-white text-2xl"></i></div>
-                <h1 class="text-3xl font-extrabold text-[#1e293b] tracking-tight">Hostel <span class="text-[#9b1c31]">Management</span></h1>
+                <h1 class="text-3xl font-extrabold text-[#1e293b]">Hostel <span class="text-[#9b1c31]">Management</span></h1>
             </div>
-            <div class="bg-gray-50 p-10 rounded-[2.5rem] border border-gray-100 shadow-2xl text-left">
+            <div class="bg-gray-50 p-10 rounded-[2.5rem] border border-gray-100 shadow-xl text-left">
                 <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block ml-1">Authentication</label>
-                <input id="userId" type="text" placeholder="Roll Number / ID" class="w-full p-4 border rounded-2xl mb-6 outline-none focus:ring-2 focus:ring-[#9b1c31] font-bold text-lg shadow-sm">
+                <input id="userId" type="text" placeholder="Roll Number / ID" class="w-full p-4 border rounded-2xl mb-6 outline-none focus:ring-2 focus:ring-[#9b1c31] font-bold text-lg">
                 <button onclick="doLogin()" class="w-full bg-[#9b1c31] text-white p-4 rounded-2xl font-bold text-lg hover:bg-red-800 transition transform hover:scale-[1.02]">LOGIN TO PORTAL</button>
             </div>
         </div>
     </div>
 
-    <!-- SIDEBAR -->
     <aside class="w-72 bg-[#9b1c31] text-white flex flex-col shadow-2xl z-40 no-print">
-        <div class="p-8 text-xl font-extrabold border-b border-white/10 tracking-tight uppercase">Hostel Portal</div>
+        <div class="p-8 text-xl font-extrabold border-b border-white/10 uppercase tracking-tight">Hostel Portal</div>
         <nav class="flex-1 mt-8 space-y-1">
-            <div onclick="showTab('dashboard')" id="nav-dashboard" class="sidebar-link p-4 px-8 cursor-pointer flex items-center active-tab font-semibold transition-all"><i class="fas fa-chart-pie mr-4 w-5"></i> Dashboard</div>
-            <div onclick="showTab('feedback')" id="nav-feedback" class="sidebar-link p-4 px-8 cursor-pointer flex items-center font-semibold transition-all"><i class="fas fa-edit mr-4 w-5"></i> Submit Feedback</div>
-            <div onclick="showTab('reports')" id="nav-reports" class="sidebar-link p-4 px-8 cursor-pointer flex items-center font-semibold transition-all"><i class="fas fa-file-invoice mr-4 w-5"></i> Business Reports</div>
+            <div onclick="showTab('dashboard')" id="nav-dashboard" class="sidebar-link p-4 px-8 cursor-pointer flex items-center active-tab font-semibold"><i class="fas fa-chart-pie mr-4 w-5"></i> Dashboard</div>
+            <div onclick="showTab('feedback')" id="nav-feedback" class="sidebar-link p-4 px-8 cursor-pointer flex items-center font-semibold"><i class="fas fa-edit mr-4 w-5"></i> Submit Feedback</div>
+            <div onclick="showTab('reports')" id="nav-reports" class="sidebar-link p-4 px-8 cursor-pointer flex items-center font-semibold"><i class="fas fa-file-invoice mr-4 w-5"></i> Reports</div>
         </nav>
+        <div class="p-4 text-[10px] uppercase opacity-40 tracking-widest text-center border-t border-white/5">© 2026 Hostel Management</div>
     </aside>
 
-    <!-- MAIN AREA -->
     <main class="flex-1 flex flex-col overflow-y-auto">
         <header class="bg-white border-b p-4 flex justify-between items-center px-10 shadow-sm no-print">
             <h2 id="tabTitle" class="font-bold text-gray-700 uppercase tracking-widest text-sm">Dashboard</h2>
-            <div class="flex items-center gap-6">
-                <button onclick="toggleTheme()" class="text-gray-500 hover:text-[#9b1c31] transition"><i class="fas fa-adjust"></i></button>
-                <div class="flex items-center gap-3 border-l pl-6 text-right">
-                    <div>
-                        <p id="profName" class="text-sm font-bold text-gray-800">User</p>
-                        <button onclick="location.reload()" class="text-[10px] text-red-500 font-bold uppercase hover:underline">Logout</button>
-                    </div>
-                    <div id="avatar" class="w-10 h-10 bg-[#9b1c31] rounded-full flex items-center justify-center text-white font-bold border-2 border-white">U</div>
-                </div>
+            <div class="flex items-center gap-3 text-right">
+                <div><p id="profName" class="text-sm font-bold text-gray-800"></p><button onclick="logout()" class="text-[10px] text-red-500 font-bold uppercase hover:underline">Logout</button></div>
+                <div id="avatar" class="w-10 h-10 bg-[#9b1c31] rounded-full flex items-center justify-center text-white font-bold border-2 border-white shadow-sm">U</div>
             </div>
         </header>
 
         <div class="p-8">
-            <!-- TAB: DASHBOARD -->
             <div id="tab-dashboard" class="space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-green-500">
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Satisfied</p>
-                        <h3 class="text-3xl font-black text-gray-800" id="count-g">0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-amber-500">
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Average</p>
-                        <h3 class="text-3xl font-black text-gray-800" id="count-a">0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-red-500">
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Critical</p>
-                        <h3 class="text-3xl font-black text-red-600" id="count-p">0</h3>
-                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-green-500"><p class="text-xs font-bold text-gray-400 uppercase">Satisfied</p><h3 class="text-3xl font-black text-gray-800" id="count-g">0</h3></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-amber-500"><p class="text-xs font-bold text-gray-400 uppercase">Average</p><h3 class="text-3xl font-black text-gray-800" id="count-a">0</h3></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-red-500"><p class="text-xs font-bold text-gray-400 uppercase">Poor</p><h3 class="text-3xl font-black text-red-600" id="count-p">0</h3></div>
                 </div>
-
                 <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                    <div class="p-4 font-bold border-b bg-gray-50 flex justify-between items-center px-6">
-                        <span class="text-xs uppercase tracking-widest text-gray-500">Live Audit Logs</span>
-                        <button onclick="refreshData()" class="text-xs text-blue-600 font-bold hover:underline"><i class="fas fa-sync"></i> Refresh</button>
-                    </div>
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-100 text-[10px] uppercase font-bold text-gray-500 border-b">
-                            <tr><th class="p-4 px-6">Timestamp</th><th class="p-4">User</th><th class="p-4">Meal</th><th class="p-4">Rating</th><th class="p-4">Comment</th></tr>
-                        </thead>
-                        <tbody id="logTable"></tbody>
-                    </table>
+                    <div class="p-4 font-bold border-b bg-gray-50 flex justify-between items-center px-6"><span class="text-xs uppercase tracking-widest text-gray-500">Live Audit Logs</span><button onclick="refreshData()" class="text-xs text-blue-600 font-bold"><i class="fas fa-sync"></i> Refresh</button></div>
+                    <table class="w-full text-left text-sm"><thead class="bg-gray-100 text-[10px] uppercase font-bold text-gray-500 border-b"><tr><th class="p-4 px-6">Timestamp</th><th class="p-4">User</th><th class="p-4">Meal</th><th class="p-4">Rating</th><th class="p-4">Comment</th></tr></thead><tbody id="logTable"></tbody></table>
                 </div>
             </div>
 
-            <!-- TAB: FEEDBACK -->
             <div id="tab-feedback" class="hidden max-w-xl mx-auto bg-white p-10 rounded-[2.5rem] shadow-2xl border">
-                <h2 class="text-2xl font-bold mb-8 text-gray-800 text-center uppercase">Submit Feedback</h2>
+                <h2 class="text-2xl font-bold mb-8 text-gray-800 text-center uppercase tracking-tight">Mess Feedback</h2>
                 <div class="space-y-6">
-                    <select id="f-meal" class="w-full p-4 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-[#9b1c31] font-bold">
-                        <option>Breakfast</option><option selected>Lunch</option><option>Dinner</option>
-                    </select>
+                    <select id="f-meal" class="w-full p-4 bg-gray-50 border rounded-xl outline-none font-bold"><option>Breakfast</option><option selected>Lunch</option><option>Dinner</option></select>
                     <div class="flex gap-4">
-                        <button onclick="setRate('Good', this)" class="flex-1 p-4 border rounded-2xl font-bold rate-btn border-[#9b1c31] bg-gray-50 border-2 transition-all">Good</button>
-                        <button onclick="setRate('Average', this)" class="flex-1 p-4 border rounded-2xl font-bold rate-btn transition-all">Average</button>
-                        <button onclick="setRate('Poor', this)" class="flex-1 p-4 border rounded-2xl font-bold rate-btn transition-all">Poor</button>
+                        <button onclick="setRate('Good', this)" class="flex-1 p-4 border rounded-2xl font-bold rate-btn border-[#9b1c31] bg-gray-50 border-2">Good</button>
+                        <button onclick="setRate('Average', this)" class="flex-1 p-4 border rounded-2xl font-bold rate-btn">Average</button>
+                        <button onclick="setRate('Poor', this)" class="flex-1 p-4 border rounded-2xl font-bold rate-btn">Poor</button>
                     </div>
                     <textarea id="f-msg" class="w-full p-4 bg-gray-50 border rounded-xl h-32 outline-none" placeholder="Describe quality (Optional)..."></textarea>
-                    <button onclick="submitFeedback()" class="w-full bg-[#9b1c31] text-white p-4 rounded-xl font-bold shadow-lg hover:bg-red-800 transition transform active:scale-95">Submit Entry 🗸</button>
+                    <button onclick="submitFeedback()" class="w-full bg-[#9b1c31] text-white p-4 rounded-xl font-bold shadow-lg hover:bg-red-800 transition">Confirm & Submit 🗸</button>
                 </div>
             </div>
 
-            <!-- TAB: REPORTS -->
             <div id="tab-reports" class="hidden space-y-8">
-                <div class="print-only text-center mb-8">
-                    <h1 class="text-2xl font-bold text-[#9b1c31] uppercase">Official Mess Feedback Statement</h1>
-                    <p id="print-date-range" class="text-sm font-bold text-gray-500"></p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border flex flex-wrap items-center gap-6 no-print filter-box">
-                    <div class="flex items-center gap-2"><span class="text-xs font-bold text-gray-400 uppercase">From:</span><input type="date" id="filterFrom" class="p-2 border rounded-lg text-sm"></div>
-                    <div class="flex items-center gap-2"><span class="text-xs font-bold text-gray-400 uppercase">To:</span><input type="date" id="filterTo" class="p-2 border rounded-lg text-sm"></div>
-                    <button onclick="generateReport()" class="bg-gray-800 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-black uppercase"><i class="fas fa-sync mr-2"></i>Generate</button>
-                    <button onclick="window.print()" class="text-gray-400 text-sm font-bold ml-auto hover:text-[#9b1c31] transition"><i class="fas fa-download mr-2"></i>Download Statement</button>
-                </div>
+                <div class="print-only text-center mb-8"><h1 class="text-2xl font-bold text-[#9b1c31]">Official Mess Feedback Report</h1><p id="print-date-range" class="text-sm font-bold text-gray-500"></p></div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border flex flex-wrap items-center gap-6 no-print"><input type="date" id="filterFrom" class="p-2 border rounded-lg text-sm"><input type="date" id="filterTo" class="p-2 border rounded-lg text-sm"><button onclick="generateReport()" class="bg-gray-800 text-white px-6 py-2 rounded-lg text-sm font-bold uppercase">Generate</button><button onclick="window.print()" class="text-gray-400 text-sm font-bold ml-auto hover:text-[#9b1c31]"><i class="fas fa-download mr-2"></i>Download PDF</button></div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-cyan-500 p-8 rounded-[2rem] text-white shadow-xl"><p class="text-xs font-bold uppercase opacity-70">Total Feedbacks</p><h3 class="text-5xl font-black mt-2" id="rep-total">0</h3></div>
                     <div class="bg-emerald-400 p-8 rounded-[2rem] text-white shadow-xl"><p class="text-xs font-bold uppercase opacity-70">Quality Score</p><h3 class="text-5xl font-black mt-2" id="rep-percent">0%</h3></div>
-                    <div class="bg-rose-400 p-8 rounded-[2rem] text-white shadow-xl"><p class="text-xs font-bold uppercase opacity-70">Critical Issues</p><h3 class="text-5xl font-black mt-2" id="rep-poor">0</h3></div>
+                    <div class="bg-rose-400 p-8 rounded-[2rem] text-white shadow-xl"><p class="text-xs font-bold uppercase opacity-70">Issues Reported</p><h3 class="text-5xl font-black mt-2" id="rep-poor">0</h3></div>
                 </div>
                 <div class="bg-white p-10 rounded-[3rem] shadow-sm border h-96"><canvas id="reportChart"></canvas></div>
-                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-100 text-[10px] uppercase font-bold text-gray-500">
-                            <tr><th class="p-4 px-6">Date</th><th class="p-4">Roll No</th><th class="p-4">Session</th><th class="p-4">Rating</th><th class="p-4">Comment</th></tr>
-                        </thead>
-                        <tbody id="reportTableBody"></tbody>
-                    </table>
-                </div>
+                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-gray-100 text-[10px] uppercase font-bold text-gray-500 border-b"><tr><th class="p-4 px-6">Date</th><th class="p-4">Roll No</th><th class="p-4">Session</th><th class="p-4">Rating</th><th class="p-4">Comment</th></tr></thead><tbody id="reportTableBody"></tbody></table></div>
             </div>
         </div>
     </main>
@@ -151,13 +98,21 @@
 
         function doLogin() {
             const id = document.getElementById('userId').value.trim();
-            if(!id) { alert("Roll Number is required"); return; }
+            if(!id) { alert("Roll Number required"); return; }
             currentUser = id;
+            localStorage.setItem('hostel_user', id);
             document.getElementById('profName').innerText = currentUser;
             document.getElementById('avatar').innerText = currentUser.charAt(0).toUpperCase();
             document.getElementById('loginScreen').style.display = 'none';
             showTab('dashboard');
         }
+
+        window.onload = () => {
+            const saved = localStorage.getItem('hostel_user');
+            if(saved) { document.getElementById('userId').value = saved; doLogin(); }
+        };
+
+        function logout() { localStorage.removeItem('hostel_user'); location.reload(); }
 
         function showTab(t) {
             ['dashboard', 'feedback', 'reports'].forEach(id => {
@@ -167,23 +122,23 @@
             document.getElementById('tab-'+t).classList.remove('hidden');
             document.getElementById('nav-'+t).classList.add('active-tab');
             document.getElementById('tabTitle').innerText = t.toUpperCase();
-            if(t !== 'feedback') refreshData();
+            refreshData();
         }
 
         function setRate(r, btn) {
             currentRate = r;
-            document.querySelectorAll('.rate-btn').forEach(b => b.classList.remove('border-[#9b1c31]', 'bg-gray-100', 'border-2'));
-            btn.classList.add('border-[#9b1c31]', 'bg-gray-100', 'border-2');
+            document.querySelectorAll('.rate-btn').forEach(b => b.classList.remove('border-[#9b1c31]', 'bg-gray-50', 'border-2'));
+            btn.classList.add('border-[#9b1c31]', 'bg-gray-50', 'border-2');
         }
 
         async function submitFeedback() {
             const meal = document.getElementById('f-meal').value;
-            const msgInput = document.getElementById('f-msg').value.trim() || "No comment provided";
-            const body = `u=${encodeURIComponent(currentUser)}&m=${encodeURIComponent(meal)}&r=${encodeURIComponent(currentRate)}&msg=${encodeURIComponent(msgInput)}`;
+            const msg = document.getElementById('f-msg').value.trim() || "No comment provided";
+            const body = `u=${encodeURIComponent(currentUser)}&m=${encodeURIComponent(meal)}&r=${encodeURIComponent(currentRate)}&msg=${encodeURIComponent(msg)}`;
             try {
                 const response = await fetch(`${API}/submit`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body });
-                if(response.ok) { alert("✅ Feedback Saved!"); document.getElementById('f-msg').value = ""; showTab('dashboard'); }
-            } catch (err) { console.error(err); }
+                if(response.ok) { alert("✅ Feedback Recorded!"); document.getElementById('f-msg').value = ""; showTab('dashboard'); }
+            } catch (e) { alert("❌ Connection Error"); }
         }
 
         async function refreshData() {
@@ -191,31 +146,36 @@
                 const res = await fetch(`${API}/data`);
                 const data = await res.json();
                 allLogs = data.logs || [];
+                
                 const table = document.getElementById('logTable');
                 table.innerHTML = "";
                 allLogs.slice().reverse().forEach(l => {
-                    table.innerHTML += `<tr class="border-b transition hover:bg-gray-50"><td class="p-4 px-6 text-gray-400 font-mono text-[10px]">${l.t}</td><td class="p-4 font-bold text-gray-700">${l.u}</td><td class="p-4 text-gray-600">${l.m}</td><td class="p-4"><span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${l.r==='Good'?'bg-green-100 text-green-700':l.r==='Poor'?'bg-red-100 text-red-700':'bg-amber-100 text-amber-700'}">${l.r}</span></td><td class="p-4 italic text-gray-500 text-xs">"${l.msg}"</td></tr>`;
+                    const isMe = l.u === currentUser;
+                    table.innerHTML += `<tr class="border-b transition hover:bg-gray-50 ${isMe ? 'bg-blue-50/40' : ''}">
+                        <td class="p-4 px-6 text-gray-400 font-mono text-[10px]">${l.t}</td>
+                        <td class="p-4 font-bold text-gray-700">${l.u} ${isMe ? '<span class="text-[8px] bg-[#9b1c31] text-white px-1 rounded ml-1 uppercase">YOU</span>' : ''}</td>
+                        <td class="p-4 text-gray-600">${l.m}</td>
+                        <td class="p-4"><span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${l.r==='Good'?'bg-green-100 text-green-700':l.r==='Poor'?'bg-red-100 text-red-700':'bg-amber-100 text-amber-700'}">${l.r}</span></td>
+                        <td class="p-4 italic text-gray-500 text-xs truncate max-w-xs">"${l.msg}"</td>
+                    </tr>`;
                 });
                 document.getElementById('count-g').innerText = data.stats[0];
                 document.getElementById('count-a').innerText = data.stats[1];
                 document.getElementById('count-p').innerText = data.stats[2];
                 if(!document.getElementById('tab-reports').classList.contains('hidden')) generateReport();
-            } catch (e) { }
+            } catch (e) { console.log("Reconnecting..."); }
         }
 
         function generateReport() {
-            const from = document.getElementById('filterFrom').value;
-            const to = document.getElementById('filterTo').value;
+            const from = document.getElementById('filterFrom').value, to = document.getElementById('filterTo').value;
             let filtered = allLogs;
-            if(from && to) {
-                filtered = allLogs.filter(l => { const d = l.t.split(' ')[0]; return d >= from && d <= to; });
-                document.getElementById('print-date-range').innerText = `Report Period: ${from} to ${to}`;
-            }
+            if(from && to) filtered = allLogs.filter(l => { const d = l.t.split(' ')[0]; return d >= from && d <= to; });
+            
             let g=0, a=0, p=0, table = document.getElementById('reportTableBody');
             table.innerHTML = "";
             filtered.forEach(l => {
                 if(l.r === 'Good') g++; else if(l.r === 'Average') a++; else p++;
-                table.innerHTML += `<tr class="border-b"><td class="p-4 px-6 font-bold text-gray-500">${l.t.split(' ')[0]}</td><td class="p-4">${l.u}</td><td class="p-4">${l.m}</td><td class="p-4 font-black ${l.r==='Poor'?'text-red-500':''}">${l.r}</td><td class="p-4 text-xs text-slate-400">"${l.msg}"</td></tr>`;
+                table.innerHTML += `<tr class="border-b"><td class="p-4 px-6 font-bold text-gray-500">${l.t.split(' ')[0]}</td><td class="p-4">${l.u}</td><td class="p-4 italic">${l.m}</td><td class="p-4 font-black ${l.r==='Poor'?'text-red-500':''}">${l.r}</td><td class="p-4 text-xs text-slate-400">"${l.msg}"</td></tr>`;
             });
             document.getElementById('rep-total').innerText = filtered.length;
             document.getElementById('rep-percent').innerText = filtered.length ? Math.round((g/filtered.length)*100) + "%" : "0%";
@@ -226,14 +186,8 @@
         function updateChart(stats) {
             const ctx = document.getElementById('reportChart').getContext('2d');
             if(chart) chart.destroy();
-            chart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ['Good', 'Average', 'Poor'], datasets: [{ data: stats, backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderRadius: 12, barThickness: 50 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-            });
+            chart = new Chart(ctx, { type: 'bar', data: { labels: ['Good', 'Average', 'Poor'], datasets: [{ data: stats, backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderRadius: 12, barThickness: 50 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
         }
-
-        function toggleTheme() { document.getElementById('appBody').classList.toggle('dark'); }
         setInterval(() => { if(!document.getElementById('tab-dashboard').classList.contains('hidden')) refreshData(); }, 5000);
     </script>
 </body>

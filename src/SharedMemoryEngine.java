@@ -9,73 +9,85 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class SharedMemoryEngine {
-    private static final String FILE_NAME = "data/campus_governance.bin";
-    private static final int DAY_BLOCK = 128; 
-    private static final int LOG_BLOCK = 256; 
-    private static final int MAX_LOGS = 1000;
-    private static final int HEADER_OFFSET = 366 * DAY_BLOCK;
-    private static final int TOTAL_SIZE = HEADER_OFFSET + (MAX_LOGS * LOG_BLOCK) + 128;
+    private static final String FILE_NAME = "data/hostel_v4.bin"; 
+    private static final int MAX_LOGS = 100;
+    private static final int LOG_BLOCK = 256;
+    private static final int STATS_START = 1024;   // 1KB
+    private static final int LOGS_START = 20480;   // 20KB
+    private static final int TOTAL_SIZE = 1024 * 1024; // 1MB
 
     private static MappedByteBuffer buffer;
 
     static {
         try {
-            File f = new File(FILE_NAME);
-            boolean isNew = !f.exists();
-            RandomAccessFile raf = new RandomAccessFile(f, "rw");
+            File dir = new File("data");
+            if (!dir.exists()) dir.mkdirs();
+
+            RandomAccessFile raf = new RandomAccessFile(FILE_NAME, "rw");
             raf.setLength(TOTAL_SIZE);
             buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, TOTAL_SIZE);
             
-            if (isNew) {
-                buffer.putInt(TOTAL_SIZE - 40, 0); 
-                buffer.putInt(TOTAL_SIZE - 30, 0); 
+            // Initialize pointers if file is new
+            if (buffer.getInt(0) < 0) { // Safety check
+                buffer.putInt(0, 0); 
+                buffer.putInt(4, 0); 
+                buffer.force();
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
 
     public static synchronized void saveEntry(String user, String meal, String rate, String msg) {
-        try {
-            int dayOffset = LocalDate.now().getDayOfYear() * DAY_BLOCK;
-            int rateIdx = rate.equalsIgnoreCase("Good") ? 0 : (rate.equalsIgnoreCase("Average") ? 4 : 8);
-            buffer.putInt(dayOffset + rateIdx, buffer.getInt(dayOffset + rateIdx) + 1);
+        try (RandomAccessFile raf = new RandomAccessFile(FILE_NAME, "rw");
+             FileChannel channel = raf.getChannel()) {
+            
+            // 1. DISTRIBUTED MUTEX: Prevents Race Conditions
+            FileLock lock = channel.lock(); 
+            try {
+                // 2. Update Daily Stats
+                int dayOffset = STATS_START + (LocalDate.now().getDayOfYear() * 16);
+                int rateIdx = rate.equalsIgnoreCase("Good") ? 0 : (rate.equalsIgnoreCase("Average") ? 4 : 8);
+                buffer.putInt(dayOffset + rateIdx, buffer.getInt(dayOffset + rateIdx) + 1);
 
-            int count = buffer.getInt(TOTAL_SIZE - 40);
-            int pointer = buffer.getInt(TOTAL_SIZE - 30);
-            int off = HEADER_OFFSET + (pointer * LOG_BLOCK);
+                // 3. Save Audit Log Record
+                int count = buffer.getInt(0);
+                int pointer = buffer.getInt(4);
+                int off = LOGS_START + (pointer * LOG_BLOCK);
 
-            // Important: Use YYYY-MM-DD format for easy JS filtering
-            String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-            writeStr(off, time, 20);
-            writeStr(off + 25, user, 20);
-            writeStr(off + 50, meal, 15);
-            writeStr(off + 70, rate, 15);
-            writeStr(off + 90, msg, 150);
+                String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                writeStr(off, time, 20);
+                writeStr(off + 25, user, 20);
+                writeStr(off + 50, meal, 15);
+                writeStr(off + 70, rate, 15);
+                writeStr(off + 90, (msg == null || msg.isEmpty()) ? "N/A" : msg, 150);
 
-            buffer.putInt(TOTAL_SIZE - 40, count + 1);
-            buffer.putInt(TOTAL_SIZE - 30, (pointer + 1) % MAX_LOGS);
+                // 4. Update Global Pointers
+                buffer.putInt(0, count + 1);
+                buffer.putInt(4, (pointer + 1) % MAX_LOGS);
+                buffer.force(); // Ensure persistence in memory segment
+
+            } finally {
+                if (lock != null) lock.release();
+            }
         } catch (Exception e) { e.printStackTrace(); }
-    }
-
-    public static String getYearlyStats() {
-        int g=0, a=0, p=0;
-        for(int i=1; i<=365; i++) {
-            int off = i * DAY_BLOCK;
-            g += buffer.getInt(off); a += buffer.getInt(off + 4); p += buffer.getInt(off + 8);
-        }
-        return String.format("[%d, %d, %d]", g, a, p);
     }
 
     public static String getLogsJSON() {
         StringBuilder json = new StringBuilder("[");
-        int count = buffer.getInt(TOTAL_SIZE - 40);
+        int count = buffer.getInt(0);
         int toRead = Math.min(count, MAX_LOGS);
         for (int i = 0; i < toRead; i++) {
-            int off = HEADER_OFFSET + (i * LOG_BLOCK);
+            int off = LOGS_START + (i * LOG_BLOCK);
             json.append(String.format("{\"t\":\"%s\",\"u\":\"%s\",\"m\":\"%s\",\"r\":\"%s\",\"msg\":\"%s\"},",
                 readStr(off), readStr(off + 25), readStr(off + 50), readStr(off + 70), readStr(off + 90)));
         }
         if (json.length() > 1) json.setLength(json.length() - 1);
         return json.append("]").toString();
+    }
+
+    public static String getYearlyStats() {
+        int dayOffset = STATS_START + (LocalDate.now().getDayOfYear() * 16);
+        return String.format("[%d, %d, %d]", 
+            buffer.getInt(dayOffset), buffer.getInt(dayOffset + 4), buffer.getInt(dayOffset + 8));
     }
 
     private static void writeStr(int o, String s, int m) {
