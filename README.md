@@ -9,85 +9,58 @@
 
 SentinelSync is a distributed hostel mess feedback and auditing platform developed for the Distributed Systems Lab. The system enables students to submit real-time mess feedback while providing wardens and administrators with live monitoring, analytics, and reporting capabilities.
 
-📌 Project Overview
+## 📌 Project Overview
 
-SentinelSync is a distributed hostel mess feedback and auditing platform developed for the Distributed Systems Lab. The system enables students to submit real-time mess feedback while providing wardens and administrators with live monitoring, analytics, and reporting capabilities.
+SentinelSync is a distributed hostel mess feedback and auditing platform developed for the Distributed Systems Lab.
 
-The project demonstrates practical implementation of Shared Memory IPC, Synchronization, Containerization, and CI/CD automation in a real-world campus management system.
+The system enables students to submit real-time mess feedback while providing wardens and administrators with live monitoring, analytics, and reporting capabilities.
 
-🏗️ System Architecture
-Shared Memory Data Engine
+---
 
-The application uses Java NIO's MappedByteBuffer to create a memory-mapped file (campus_data.bin) that acts as a shared storage segment between processes.
+## ✨ Features
 
-Synchronization
+### 👨‍🎓 Student Portal
 
-To prevent concurrent write conflicts, file-level locking is implemented using:
+- Submit mess quality feedback
+- Rating options: Good, Average, Poor
+- Add textual comments
+- Session persistence using localStorage
+- Personal feedback highlighting with "YOU" badge
 
-FileChannel.lock()
+### 👨‍💼 Warden Dashboard
 
-This ensures safe updates when multiple users submit feedback simultaneously.
+- Live feedback monitoring
+- Satisfaction summary cards
+- Audit trail visibility
+- Trend analysis
+- Printable reports
 
-Audit Log Storage
+---
 
-Feedback entries are stored using a fixed-size binary structure, enabling:
+## 🛠️ Tech Stack
 
-Predictable memory usage
-Fast sequential writes
-Efficient retrieval of records
-✨ Features
-👨‍🎓 Student Portal
-Submit mess quality feedback
-Rating options: Good, Average, Poor
-Add textual comments
-Session persistence using localStorage
-Personal feedback highlighting with "YOU" badge
-Responsive and modern UI
-👨‍💼 Warden Dashboard
-Live feedback monitoring
-Satisfaction summary cards
-Audit trail visibility
-Daily and monthly trend analysis
-Printable quality reports
-Interactive charts and analytics
-📊 Analytics Dashboard
+| Layer | Technology |
+|---------|------------|
+| Backend | Java 17 |
+| Frontend | HTML5, JavaScript |
+| Styling | Tailwind CSS |
+| Containerization | Docker |
+| CI/CD | GitHub Actions |
+| Deployment | Render |
 
-The dashboard provides:
+---
 
-Satisfaction metrics
-Critical issue tracking
-Historical quality trends
-Interactive visualizations powered by Chart.js
-🛠️ Tech Stack
-Layer	Technology
-Backend	Java 17
-Networking	Java HttpServer API
-Shared Memory	Java NIO (MappedByteBuffer)
-Frontend	HTML5, JavaScript (ES6+)
-Styling	Tailwind CSS
-Visualization	Chart.js
-Icons	Font Awesome 6
-Containerization	Docker
-CI/CD	GitHub Actions
-Deployment	Render
-⚙️ DevOps Practices
-Docker
-Multi-stage Docker builds
-Lightweight runtime image
-Reproducible deployment environment
-CI/CD Pipeline
+## 📂 Project Structure
 
-GitHub Actions automatically:
-
-Validate project builds
-Verify Docker image generation
-Run automated checks on every push
-Cloud Deployment
-Containerized deployment on Render
-Automated build and deployment pipeline
-Cloud-hosted distributed architecture
-📂 Project Structure
+```text
 SentinelSync/
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+│
+├── data/
+│   └── campus_data.bin
 │
 ├── src/
 │   ├── WebServer.java
@@ -95,50 +68,28 @@ SentinelSync/
 │   ├── FeedbackHandler.java
 │   └── ...
 │
-├── public/
+├── web/
 │   ├── index.html
 │   ├── dashboard.html
+│   ├── analytics.html
 │   └── assets/
 │
 ├── Dockerfile
 ├── docker-compose.yml
-├── .github/workflows/
-├── campus_data.bin
+├── .gitignore
 └── README.md
-⚙️ Local Setup
-Prerequisites
-Docker
-OR Java JDK 17+
-Option 1: Run with Docker
+```
+
+## ⚙️ Local Setup
+
+### Run with Docker
+
+```bash
 docker-compose up --build
 
-Open:
+## 📜 Academic Context
 
-http://localhost:8080
-Option 2: Run Manually
+Developed as part of the **Distributed Systems Laboratory** coursework, focusing on shared-memory communication, synchronization, and concurrent system design.
 
-Compile:
-
-javac src/*.java -d .
-
-Run:
-
-java src.WebServer
-
-Open:
-
-http://localhost:8080
-
-🎯 Distributed Systems Concepts Demonstrated
-Shared Memory Communication (IPC)
-Inter-Process Coordination
-Synchronization using File Locks
-Concurrent Access Handling
-Memory-Mapped File Storage
-State Management without SQL Databases
-
-📜 Academic Context
-Developed as part of the Distributed Systems Laboratory project work.
-
-Team: Group E
-Project Lead: Komal Chaurasiya
+**Team:** Group E  
+**Project Lead & DevOps Engineer:** Komal Chaurasiya
